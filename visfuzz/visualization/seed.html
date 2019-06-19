@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>VisFuzz</title>
+
+  <!-- Bootstrap core CSS-->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin.css" rel="stylesheet">
+
+  <style>
+    .header_div {
+      text-align: center
+    }
+
+    table.altrowstable {
+      width: 700px;
+      height: 400px;
+      table-layout: fixed;
+
+      font-family: verdana, arial, sans-serif;
+      font-size: 16px;
+
+      background-color: #4D4D4D;
+      color: #4D4D4D;
+      order-width: 1px;
+      border-color: #a9c6c9;
+      border-collapse: collapse;
+    }
+
+    table.altrowstable td {
+      border-width: 0px;
+      padding: 8px;
+      border-style: solid;
+      border-color: #a9c6c9;
+    }
+
+    .oddrowcolor {
+      background-color: #4D4D4D;
+    }
+
+    .evenrowcolor {
+      background-color: #4D4D4D;
+    }
+  </style>
+</head>
+
+<body id="page-top">
+
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="sidebar navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="index.html">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Overview</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="cfg.html">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Control Flow Graph</span></a>
+      </li>
+      <li class="nav-item">
+          <a class="nav-link" href="seed.html">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Seeds</span>
+          </a>
+        </li>
+    </ul>
+
+    <div id="content-wrapper">
+      <div class="container-fluid" style="padding-top:60px">
+        <div class="card mx-auto mt-5 bg-light" style="top:100px;width: 70%">
+          <div class="card-body">
+            <form>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <div class="form-label-group">
+                      <textarea id="seed_display" rows="10" class="form-control" readonly="readonly"></textarea>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="radio">
+                      <label>
+                        <input type="radio" name="seed" value="1" checked=True onclick="on_click(this);">
+                        Seed 1
+                      </label>
+                      <label>
+                        <input type="radio" name="seed" value="2" onclick="on_click(this);">
+                        Seed 2
+                      </label>
+                      <label>
+                        <input type="radio" name="seed" value="3" onclick="on_click(this);">
+                        Seed 3
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <div class="form-label-group">
+                      <textarea id="handcrated_seed" rows="10" class="form-control"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <a class="btn btn-primary btn-block" style="width:200px;margin: auto">Submit</a>
+            </form>
+          </div>
+        </div>
+
+        <!-- Sticky Footer -->
+        <footer class="sticky-footer">
+          <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+              <span>Copyright © VisFuzz Group</span>
+            </div>
+          </div>
+        </footer>
+
+      </div>
+      <!-- /.content-wrapper -->
+
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+      <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Page level plugin JavaScript-->
+    <script src="vendor/chart.js/Chart.min.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin.min.js"></script>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+</body>
+<script>
+  d3.json("http://localhost:6767/out/queue/seeds", function (error, seeds) {
+    if (error) throw error;
+    global_seeds = seeds;
+    add_info(global_seeds[0]);
+  });
+  function on_click(obj) {
+    text = global_seeds[parseInt(obj.value) - 1];
+    add_info(text);
+  }
+  function add_info(text) {
+    var display = document.getElementById("seed_display");
+    display.value = text;
+  }
+</script>
+
+</html>

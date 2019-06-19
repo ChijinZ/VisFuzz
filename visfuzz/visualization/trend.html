@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>VisFuzz</title>
+
+  <!-- Bootstrap core CSS-->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+
+  <!-- Page level plugin CSS-->
+  <!-- <link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet"> -->
+
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin.css" rel="stylesheet">
+
+
+</head>
+
+<body id="page-top">
+
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="sidebar navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="index.html">
+          <i class="fas fa-fw fa-tachometer-alt"></i>
+          <span>Overview</span>
+        </a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="trend.html">
+          <i class="fas fa-fw fa-chart-area"></i>
+          <span>Trend</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="cfg.html">
+          <i class="fas fa-fw fa-table"></i>
+          <span>Control Flow Graph</span></a>
+      </li>
+    </ul>
+
+    <div id="content-wrapper">
+      <div class="container-fluid" style="padding-top:60px">
+        <div class="row">
+          <div class="col-lg-6">
+            <!-- Area Chart Example-->
+            <div class="card mb-8">
+              <div class="card-header">
+                <i class="fas fa-chart-area"></i>
+                Path Coverage</div>
+              <div class="card-body">
+                <canvas id="path_chart" width="100%" height="70"></canvas>
+              </div>
+              <div class="card-footer small text-muted" id="path_footer"></div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="card mb-3">
+              <div class="card-header">
+                <i class="fas fa-chart-area"></i>
+                new interesting seed per hour</div>
+              <div class="card-body">
+                <canvas id="paths_in_cycle_chart" width="100%" height="70"></canvas>
+              </div>
+              <div class="card-footer small text-muted" id="execute_footer"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sticky Footer -->
+      <footer class="sticky-footer">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright © VisFuzz Group</span>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+    <!-- /.content-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Bootstrap core JavaScript-->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript-->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Page level plugin JavaScript-->
+  <script src="vendor/chart.js/Chart.min.js"></script>
+  <!-- Custom scripts for all pages-->
+  <script src="js/sb-admin.min.js"></script>
+
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+</body>
+<script>
+  // Area Chart Example
+
+  // var rawFile = new XMLHttpRequest();
+  // rawFile.open("GET", "re2/fuzz/out/plot_data", true);
+  // rawFile.onreadystatechange = function () {
+  //   if (rawFile.readyState == 4 && rawFile.status == "200") {
+  //     var text = rawFile.responseText;
+  //     var a = 0;
+  //   }
+  // }
+  // rawFile.send(null);
+
+  setInterval(
+    function () {
+      d3.csv("http://localhost:6767/out/plot_data?_=" + Math.random(), function (error, data) {
+        if (error) throw error;
+        var now = new Date(1000 * parseInt(data[data.length - 1]["# unix_time"]));
+        add_info("updated: " + now, "execute_footer");
+        add_info("updated: " + now, "path_footer")
+
+        var paths_total = [];
+        var paths_in_hour = [];
+        var last_time = new Date(1000 * parseInt(data[0]["# unix_time"]));
+        for (var i = 0; i < data.length; i++) {
+          paths_total.push(data[i][" paths_total"]);
+          var now = new Date(1000 * data[i]["# unix_time"]);
+          if ((now - last_time) / 36000 > 1) {
+            paths_in_hour.push(data[i][" paths_total"]);
+            last_time = now;
+          }
+        }
+        var x_axis_1 = [];
+        for (var i = 0; i < paths_total.length; i++) {
+          x_axis_1.push(i);
+        }
+        var x_axis_2 = [];
+        var length_2 = paths_in_hour.length;
+        for (var i = 0; i < length_2; i++) {
+          if (i < length_2 - 1) {
+            paths_in_hour[length_2 - i - 1] -= paths_in_hour[length_2 - i - 2];
+          }
+          x_axis_2.push(i + 1);
+        }
+        var ctx1 = document.getElementById("path_chart");
+        var myLineChart = new Chart(ctx1, {
+          type: 'line',
+          scaleLabel: "path coverage",
+          data: {
+            labels: x_axis_1,
+            datasets: [{
+              label: 'path coverage',
+              data: paths_total,
+              borderColor: "#3e95cd",
+              pointRadius: 1,
+              fill: false
+            }],
+          },
+          options: {
+            animation: false,
+            elements: {
+              line: {
+                tension: 0 // 禁用贝塞尔曲线
+              }
+            },
+            legend: {
+              display: false
+            },
+            scales: {
+              yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'path coverage'
+                }
+              }],
+              xAxes: [{
+                ticks: {
+                  display: false //this will remove only the label
+                },
+                gridLines: {
+                  color: "rgba(0, 0, 0, 0)",
+                }
+              }]
+            }
+          }
+        });
+
+        var ctx2 = document.getElementById("paths_in_cycle_chart");
+        var myLineChart = new Chart(ctx2, {
+          type: 'line',
+          data: {
+            labels: x_axis_2,
+            datasets: [{
+              data: paths_in_hour,
+              borderColor: "#3cba9f",
+              fill: false
+            }],
+          },
+          options: {
+            animation: false,
+            legend: { display: false },
+            title: {
+              display: true,
+            },
+            scales: {
+              yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'new interesting seed'
+                }
+              }]
+            }
+          }
+        });
+      })
+    }
+    , 1000);
+
+  function add_info(text, id) {
+    var father = document.getElementById(id);
+    while (father.hasChildNodes()) {
+      father.removeChild(father.firstChild);
+    }
+    var child = document.createTextNode(text);
+    father.append(child);
+  }
+
+
+</script>
+
+</html>
