@@ -5,6 +5,8 @@ VisFuzz is an interactive tool for better understanding and intervening fuzzing 
 ## Published work
 VisFuzz: Understanding and Intervening Fuzzing with Interactive Visualization, ASE 2019.
 
+[preprint paper](http://www.wingtecher.com/themes/WingTecherResearch/assets/papers/visfuzzASE19r.pdf)
+
 [demo video link](https://youtu.be/opjRKcqOvNs)
 
 ## Usage
