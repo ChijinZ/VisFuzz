@@ -10,7 +10,7 @@ VisFuzz: Understanding and Intervening Fuzzing with Interactive Visualization, A
 [demo video link](https://youtu.be/opjRKcqOvNs)
 
 ## Usage
-1. Install LLVM (>= 7.0), python3.
+1. Install LLVM (>= 8.0), python3.
 2. Download and compile VisFuzz:
 
         git clone https://github.com/ChijinZ/VisFuzz.git
@@ -31,6 +31,8 @@ VisFuzz: Understanding and Intervening Fuzzing with Interactive Visualization, A
         cd $DEMO_PATH/re2
         sh compile.sh
         cd repo
+        mkdir in
+        echo a>in/seed
         nohup $TOOL_PATH/fuzz/afl/afl-fuzz -i in -o out ./app @@ &
         python $TOOL_PATH/open_file_server.py 6767
 
