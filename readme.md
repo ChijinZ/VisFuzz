@@ -14,19 +14,21 @@ VisFuzz: Understanding and Intervening Fuzzing with Interactive Visualization, A
 2. Download and compile VisFuzz:
 
         git clone https://github.com/ChijinZ/VisFuzz.git
+        cd VisFuzz
         export DEMO_PATH=$PWD/demo
         export TOOL_PATH=$PWD/visfuzz
         cd $TOOL_PATH/fuzz
         mkdir build
         cd build
         cmake ../llvm/ .
+        make
         export VISFUZZ_BUILD=$PWD
         cd $TOOL_PATH/fuzz/afl
         make
 
 3. Fuzz && visualize demo:
  
-        cd $DEMO_PATH
+        cd $DEMO_PATH/re2
         sh compile.sh
         cd repo
         nohup $TOOL_PATH/fuzz/afl/afl-fuzz -i in -o out ./app @@ &
